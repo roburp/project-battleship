@@ -1,6 +1,6 @@
 import { Ship } from "./ship.js";
 
-class Gameboard {
+export class Gameboard {
   constructor() {
     this.ships = [];
     this.attacks = [];
@@ -32,5 +32,10 @@ class Gameboard {
     } else {
       this.missedAttacks.push(coordinates);
     }
+  }
+
+  allShipsSunk() {
+    // Returns true if every ship on the board has sunk
+    return this.ships.every((entry) => entry.ship.isSunk());
   }
 }
