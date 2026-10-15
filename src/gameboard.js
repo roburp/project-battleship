@@ -19,7 +19,7 @@ export class Gameboard {
   receiveAttack(coordinates) {
     // Checks if coordinate has already been attacked
     const alreadyAttacked = this.attacks.some((attack) => attack[0] === coordinates[0] && attack[1] === coordinates[1]);
-    if (alreadyAttacked) return;
+    if (alreadyAttacked) return false;
     this.attacks.push(coordinates);
 
     // Find the ship occupying the attacked coordinates
@@ -29,8 +29,10 @@ export class Gameboard {
 
     if (target) {
       target.ship.hit();
+      return "hit";
     } else {
       this.missedAttacks.push(coordinates);
+      return "miss";
     }
   }
 

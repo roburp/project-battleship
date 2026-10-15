@@ -1,0 +1,35 @@
+* {
+  box-sizing: border-box;
+}
+
+#boards {
+  /* display: grid;
+  grid-template-columns: 1fr 1fr; */
+  display: flex;
+  gap: 40px;
+}
+
+#player-board,
+#opponent-board {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  width: 320px;
+  margin-bottom: 20px;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border: 1px solid black;
+}
+
+.ship {
+  background-color: black;
+}
+
+.ship.hit {
+  background-color: red;
+}
+
+.cell.miss {
+  background-color: grey;
+}
