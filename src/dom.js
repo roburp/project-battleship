@@ -2,12 +2,32 @@
 
 function createCell(x, y) {
   const cell = document.createElement("div");
-  cell.dataset.x = x;
-  cell.dataset.y = y;
+
+  if (x !== undefined && y !== undefined) {
+    cell.dataset.x = x;
+    cell.dataset.y = y;
+  }
   cell.classList.add("cell");
   return cell;
 }
 
+// renders the ship placement tray
+export function renderShipTray(container, fleet) {
+  fleet.forEach((length) => {
+    const ship = document.createElement("div");
+    ship.classList.add("placeable-ship");
+    ship.dataset.length = length;
+
+    for (let i = 0; i < length; i++) {
+      const cell = createCell();
+      ship.append(cell);
+    }
+
+    container.append(ship);
+  });
+}
+
+// renders the gameboard (ideally 10x10)
 export function renderBoard(boardElement, size) {
   for (let y = 1; y <= size; y++) {
     for (let x = 1; x <= size; x++) {
@@ -17,6 +37,7 @@ export function renderBoard(boardElement, size) {
   }
 }
 
+// renders ships inside the gameboard
 export function renderShips(boardElement, gameboard) {
   const ships = gameboard.ships;
 

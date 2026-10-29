@@ -2,6 +2,18 @@
   box-sizing: border-box;
 }
 
+.placeable-ship {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.placeable-ship .cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid black;
+  background-color: steelblue;
+}
+
 #boards {
   /* display: grid;
   grid-template-columns: 1fr 1fr; */

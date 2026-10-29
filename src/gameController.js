@@ -7,6 +7,8 @@ export class GameController {
     this.player1 = new Player(player1);
     this.player2 = new Player(player2);
 
+    this.fleet = [5, 4, 3, 3, 2];
+
     this.currentPlayer = this.player1;
     this.gameState = "deployment";
   }
