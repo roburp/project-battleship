@@ -88,22 +88,15 @@ export function initializeShipPlacement(shipTrayContainer, playerBoard, game) {
         coordinates = Array.from({ length }, (_, i) => [startX + i, y]);
       }
 
-      const inBounds = coordinates.every(([cx, cy]) => cx >= 1 && cx <= 10 && cy >= 1 && cy <= 10);
-
-      const overlaps = game.player1.gameboard.ships.some((placedShip) =>
-        placedShip.coordinates.some(([px, py]) => coordinates.some(([cx, cy]) => cx === px && cy === py)),
-      );
-
-      validDrop = inBounds && !overlaps;
+      validDrop = game.player1.gameboard.isValidPlacement(coordinates);
     }
 
     if (validDrop) {
       game.player1.gameboard.placeShip(length, coordinates);
       ship.remove();
       DOM.renderShips(playerBoard, game.player1.gameboard);
-      console.log(shipTrayContainer.children.length);
 
-      if (shipTrayContainer.children.length === 1) {
+      if (shipTrayContainer.children.length === 0) {
         game.beginBattle();
         DOM.renderPhase("playing");
       }
@@ -140,13 +133,7 @@ export function initializeShipPlacement(shipTrayContainer, playerBoard, game) {
       isVertical ? [x, y - grabbedIndex + i] : [x - grabbedIndex + i, y],
     );
 
-    const inBounds = coordinates.every(([cx, cy]) => cx >= 1 && cx <= 10 && cy >= 1 && cy <= 10);
-
-    const overlaps = game.player1.gameboard.ships.some((placedShip) =>
-      placedShip.coordinates.some(([px, py]) => coordinates.some(([cx, cy]) => cx === px && cy === py)),
-    );
-
-    const valid = inBounds && !overlaps;
+    const valid = game.player1.gameboard.isValidPlacement(coordinates);
 
     coordinates.forEach(([cx, cy]) => {
       const cell = playerBoard.querySelector(`.cell[data-x="${cx}"][data-y="${cy}"]`);
@@ -174,27 +161,26 @@ export function initializeAttack(opponentBoard, playerBoard, game) {
 
     const coordinate = [Number(cell.dataset.x), Number(cell.dataset.y)];
 
-    const { defender, result } = game.attack(coordinate);
+    const { defender, result, ship } = game.attack(coordinate);
     if (!result) return;
 
     const boardElement = defender === game.player1 ? playerBoard : opponentBoard;
-    DOM.renderAttack(boardElement, coordinate, result);
+    DOM.renderAttack(boardElement, coordinate, result, ship);
 
     game.switchTurn();
 
     if (game.currentPlayer === game.player2) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
-      const { defender, coordinate, result } = game.computerAttack();
+      const { defender, coordinate, result, ship } = game.computerAttack();
 
       if (result) {
         const boardElement = defender === game.player1 ? playerBoard : opponentBoard;
-        DOM.renderAttack(boardElement, coordinate, result);
+        DOM.renderAttack(boardElement, coordinate, result, ship);
       }
     }
 
     game.switchTurn();
   }
-
   opponentBoard.addEventListener("click", handleAttack);
 }

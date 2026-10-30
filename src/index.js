@@ -1,10 +1,8 @@
-console.log("index.js is loaded!");
-
 import * as DOM from "./dom.js";
 import { GameController } from "./gameController.js";
 import { initializeShipPlacement, initializeAttack } from "./eventHandlers.js";
 
-const shipTrayContainer = document.querySelector("#ship-tray");
+const shipTrayContainer = document.querySelector("#ship-container");
 const playerBoard = document.querySelector("#player-board");
 const opponentBoard = document.querySelector("#opponent-board");
 

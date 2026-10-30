@@ -47,7 +47,8 @@
   background-color: black;
 }
 
-.ship.hit {
+#player-board .ship.hit,
+#opponent-board .ship.hit {
   background-color: red;
 }
 

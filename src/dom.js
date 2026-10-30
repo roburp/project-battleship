@@ -52,13 +52,24 @@ export function renderShips(boardElement, gameboard) {
   });
 }
 
-export function renderAttack(boardElement, coordinate, result) {
+export function renderAttack(boardElement, coordinate, result, ship) {
   const x = coordinate[0];
   const y = coordinate[1];
-  console.log(boardElement);
   const cell = boardElement.querySelector(`[data-x="${x}"][data-y="${y}"]`);
-  console.log(cell);
-  cell.classList.add(result);
+
+  if (result === "hit" || result === "sunk") {
+    cell.classList.add("hit");
+  } else {
+    cell.classList.add("miss");
+  }
+
+  if (result === "sunk") {
+    ship.coordinates.forEach(([x, y]) => {
+      const cell = boardElement.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+
+      cell.classList.add("sunk");
+    });
+  }
 }
 
 export function renderPhase(phase) {

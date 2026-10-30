@@ -6,7 +6,7 @@ export class Gameboard {
     this.attacks = [];
     this.missedAttacks = [];
   }
-
+  // e.g. coordinates = [[1,2],[1,3]]
   placeShip(length, coordinates) {
     if (coordinates.length !== length) {
       throw new Error("Number of coordinates must match ship length.");
@@ -29,11 +29,25 @@ export class Gameboard {
 
     if (target) {
       target.ship.hit();
-      return "hit";
+      const result = target.ship.isSunk() ? "sunk" : "hit";
+      return { result, ship: target };
     } else {
       this.missedAttacks.push(coordinates);
-      return "miss";
+      return {
+        result: "miss",
+        ship: null,
+      };
     }
+  }
+
+  isValidPlacement(coordinates) {
+    const inBounds = coordinates.every(([x, y]) => x >= 1 && x <= 10 && y >= 1 && y <= 10);
+
+    const overlaps = this.ships.some((ship) =>
+      ship.coordinates.some(([px, py]) => coordinates.some(([x, y]) => x === px && y === py)),
+    );
+
+    return inBounds && !overlaps;
   }
 
   allShipsSunk() {

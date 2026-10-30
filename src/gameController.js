@@ -14,15 +14,16 @@ export class GameController {
   }
 
   setupGame() {
+    this.deployComputerShips();
     // this.player1.gameboard.placeShip(2, [
     //   [1, 1],
     //   [1, 2],
     // ]);
 
-    this.player2.gameboard.placeShip(2, [
-      [1, 3],
-      [1, 4],
-    ]);
+    // this.player2.gameboard.placeShip(2, [
+    //   [1, 3],
+    //   [1, 4],
+    // ]);
   }
 
   beginBattle() {
@@ -43,9 +44,9 @@ export class GameController {
   attack(coordinate) {
     // Get defending player
     const defender = this.currentPlayer === this.player1 ? this.player2 : this.player1;
-    const result = defender.gameboard.receiveAttack(coordinate);
+    const attackResult = defender.gameboard.receiveAttack(coordinate);
 
-    return { defender, coordinate, result };
+    return { defender, coordinate, ...attackResult };
   }
 
   computerAttack() {
@@ -62,6 +63,37 @@ export class GameController {
     );
 
     return this.attack(coordinate);
+  }
+
+  deployComputerShips() {
+    this.fleet.forEach((length) => {
+      let coordinates;
+
+      do {
+        coordinates = this.generateRandomPlacement(length);
+      } while (!this.player2.gameboard.isValidPlacement(coordinates));
+      this.player2.gameboard.placeShip(length, coordinates);
+    });
+  }
+
+  generateRandomPlacement(length) {
+    const x = Math.floor(Math.random() * 10) + 1;
+    const y = Math.floor(Math.random() * 10) + 1;
+    const isVertical = Math.random() < 0.5;
+
+    return Array.from({ length }, (_, i) => (isVertical ? [x, y + i] : [x + i, y]));
+
+    /*
+    const coordinates = [];
+
+    for (let i = 0; i < length; i++) {
+      if (isVertical) {
+        coordinates.push([x, y + i]);
+      } else {
+        coordinates.push([x + i, y]);
+      }
+    }
+    */
   }
 
   switchTurn() {
