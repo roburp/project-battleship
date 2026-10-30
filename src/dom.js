@@ -60,3 +60,16 @@ export function renderAttack(boardElement, coordinate, result) {
   console.log(cell);
   cell.classList.add(result);
 }
+
+export function renderPhase(phase) {
+  const opponentBoard = document.querySelector("#opponent-board");
+  const shipTray = document.querySelector("#ship-tray");
+
+  if (phase === "deployment") {
+    opponentBoard.hidden = true;
+    shipTray.hidden = false;
+  } else {
+    opponentBoard.hidden = false;
+    shipTray.hidden = true;
+  }
+}

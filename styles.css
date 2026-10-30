@@ -2,6 +2,16 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
+.game-container {
+  display: grid;
+  grid-template-columns: 320px 320px;
+  gap: 50px;
+}
+
 .placeable-ship {
   display: flex;
   margin-bottom: 10px;
@@ -14,19 +24,13 @@
   background-color: steelblue;
 }
 
-#boards {
-  /* display: grid;
-  grid-template-columns: 1fr 1fr; */
-  display: flex;
-  gap: 40px;
-}
-
 #player-board,
 #opponent-board {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   width: 320px;
   margin-bottom: 20px;
+  border: 2px solid black;
 }
 
 .cell {
@@ -34,7 +38,12 @@
   border: 1px solid black;
 }
 
-.ship {
+#player-board .ship {
+  background-color: steelblue;
+}
+
+/* no need this later on */
+#opponent-board .ship {
   background-color: black;
 }
 

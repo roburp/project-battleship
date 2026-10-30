@@ -14,10 +14,10 @@ export class GameController {
   }
 
   setupGame() {
-    this.player1.gameboard.placeShip(2, [
-      [1, 1],
-      [1, 2],
-    ]);
+    // this.player1.gameboard.placeShip(2, [
+    //   [1, 1],
+    //   [1, 2],
+    // ]);
 
     this.player2.gameboard.placeShip(2, [
       [1, 3],
