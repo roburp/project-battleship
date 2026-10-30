@@ -54,3 +54,11 @@
 .cell.miss {
   background-color: grey;
 }
+
+.cell.preview {
+  background-color: lightgreen;
+}
+
+.cell.preview-invalid {
+  background-color: lightcoral;
+}

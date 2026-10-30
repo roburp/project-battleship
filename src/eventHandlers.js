@@ -7,6 +7,8 @@ export function initializeShipPlacement(shipTrayContainer, playerBoard, game) {
   let grabLocalX = 0;
   let grabLocalY = 0;
   let isVertical = false;
+  let lastPointerX = 0;
+  let lastPointerY = 0;
 
   shipTrayContainer.addEventListener("pointerdown", (event) => {
     const shipCell = event.target.closest(".placeable-ship .cell");
@@ -39,6 +41,10 @@ export function initializeShipPlacement(shipTrayContainer, playerBoard, game) {
 
     selectedShip.style.transformOrigin = `${grabLocalX}px ${grabLocalY}px`;
     selectedShip.style.transform = isVertical ? "rotate(90deg)" : "none";
+
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+    updatePreview(event);
   });
 
   document.addEventListener("keydown", (event) => {
@@ -48,10 +54,17 @@ export function initializeShipPlacement(shipTrayContainer, playerBoard, game) {
 
     // rotate immediately, without waiting for pointer movement
     selectedShip.style.transform = isVertical ? "rotate(90deg)" : "none";
+
+    updatePreview({
+      clientX: lastPointerX,
+      clientY: lastPointerY,
+    });
   });
 
   document.addEventListener("pointerup", (event) => {
     if (!selectedShip) return;
+
+    clearPreview();
 
     const ship = selectedShip;
     const length = Number(ship.dataset.length);
@@ -110,6 +123,45 @@ export function initializeShipPlacement(shipTrayContainer, playerBoard, game) {
     grabLocalY = 0;
     isVertical = false;
   });
+
+  function updatePreview(event) {
+    clearPreview();
+
+    const target = document.elementFromPoint(event.clientX, event.clientY);
+    const boardCell = target?.closest("#player-board .cell[data-x][data-y]");
+
+    if (!boardCell) return;
+
+    const x = Number(boardCell.dataset.x);
+    const y = Number(boardCell.dataset.y);
+    const length = Number(selectedShip.dataset.length);
+
+    const coordinates = Array.from({ length }, (_, i) =>
+      isVertical ? [x, y - grabbedIndex + i] : [x - grabbedIndex + i, y],
+    );
+
+    const inBounds = coordinates.every(([cx, cy]) => cx >= 1 && cx <= 10 && cy >= 1 && cy <= 10);
+
+    const overlaps = game.player1.gameboard.ships.some((placedShip) =>
+      placedShip.coordinates.some(([px, py]) => coordinates.some(([cx, cy]) => cx === px && cy === py)),
+    );
+
+    const valid = inBounds && !overlaps;
+
+    coordinates.forEach(([cx, cy]) => {
+      const cell = playerBoard.querySelector(`.cell[data-x="${cx}"][data-y="${cy}"]`);
+
+      if (cell) {
+        cell.classList.add(valid ? "preview" : "preview-invalid");
+      }
+    });
+  }
+
+  function clearPreview() {
+    playerBoard.querySelectorAll(".preview, .preview-invalid").forEach((cell) => {
+      cell.classList.remove("preview", "preview-invalid");
+    });
+  }
 }
 
 // attack interactions
