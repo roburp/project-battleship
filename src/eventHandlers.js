@@ -10,6 +10,50 @@ export function initializeShipPlacement(shipTrayContainer, playerBoard, game) {
   let lastPointerX = 0;
   let lastPointerY = 0;
 
+  const opponentBoard = document.querySelector("#opponent-board");
+
+  function renderDeployment() {
+    // Reset player board
+    DOM.renderBoard(playerBoard, 10);
+    DOM.renderShips(playerBoard, game.getHumanBoardState());
+    DOM.renderShipTray(shipTrayContainer, game.getFleet());
+
+    // Reset computer board
+    DOM.renderBoard(opponentBoard, 10);
+    DOM.renderShips(opponentBoard, game.getComputerBoardState());
+
+    DOM.renderPhase("deployment");
+    DOM.updateStartButton(game.isHumanDeploymentComplete());
+  }
+
+  const randomizeButton = document.querySelector("#randomize-fleet");
+  randomizeButton.addEventListener("click", () => {
+    game.randomizeHumanFleet();
+    shipTrayContainer.innerHTML = "";
+
+    renderDeployment();
+  });
+
+  const resetBoardButton = document.querySelector("#reset-board");
+  resetBoardButton.addEventListener("click", () => {
+    game.resetHumanFleet();
+
+    renderDeployment();
+  });
+
+  const startGameButton = document.querySelector("#start-game");
+  startGameButton.addEventListener("click", () => {
+    if (!game.isHumanDeploymentComplete()) return;
+    game.beginBattle();
+    DOM.renderPhase("playing");
+  });
+
+  const playAgainButton = document.querySelector("#play-again");
+  playAgainButton.addEventListener("click", () => {
+    game.resetGame();
+    renderDeployment();
+  });
+
   shipTrayContainer.addEventListener("pointerdown", (event) => {
     const shipCell = event.target.closest(".placeable-ship .cell");
     if (!shipCell) return;
@@ -88,26 +132,24 @@ export function initializeShipPlacement(shipTrayContainer, playerBoard, game) {
         coordinates = Array.from({ length }, (_, i) => [startX + i, y]);
       }
 
-      validDrop = game.player1.gameboard.isValidPlacement(coordinates);
+      validDrop = game.isValidPlayerPlacement(coordinates);
     }
 
     if (validDrop) {
-      game.player1.gameboard.placeShip(length, coordinates);
-      ship.remove();
-      DOM.renderShips(playerBoard, game.player1.gameboard);
+      const placed = game.placePlayerShip(length, coordinates);
 
-      if (shipTrayContainer.children.length === 0) {
-        game.beginBattle();
-        DOM.renderPhase("playing");
+      if (placed) {
+        ship.remove();
+        DOM.renderShips(playerBoard, game.getHumanBoardState());
+
+        if (game.isHumanDeploymentComplete()) {
+          DOM.updateStartButton(game.isHumanDeploymentComplete());
+        }
+      } else {
+        restoreShip(ship);
       }
     } else {
-      // restore the ship to its original tray layout
-      ship.style.position = "";
-      ship.style.left = "";
-      ship.style.top = "";
-      ship.style.pointerEvents = "";
-      ship.style.transform = "";
-      ship.style.transformOrigin = "";
+      restoreShip(ship);
     }
 
     selectedShip = null;
@@ -116,6 +158,15 @@ export function initializeShipPlacement(shipTrayContainer, playerBoard, game) {
     grabLocalY = 0;
     isVertical = false;
   });
+
+  function restoreShip(ship) {
+    ship.style.position = "";
+    ship.style.left = "";
+    ship.style.top = "";
+    ship.style.pointerEvents = "";
+    ship.style.transform = "";
+    ship.style.transformOrigin = "";
+  }
 
   function updatePreview(event) {
     clearPreview();
@@ -133,7 +184,7 @@ export function initializeShipPlacement(shipTrayContainer, playerBoard, game) {
       isVertical ? [x, y - grabbedIndex + i] : [x - grabbedIndex + i, y],
     );
 
-    const valid = game.player1.gameboard.isValidPlacement(coordinates);
+    const valid = game.isValidPlayerPlacement(coordinates);
 
     coordinates.forEach(([cx, cy]) => {
       const cell = playerBoard.querySelector(`.cell[data-x="${cx}"][data-y="${cy}"]`);
@@ -154,33 +205,43 @@ export function initializeShipPlacement(shipTrayContainer, playerBoard, game) {
 // attack interactions
 export function initializeAttack(opponentBoard, playerBoard, game) {
   async function handleAttack(event) {
-    if (game.currentPlayer !== game.player1) return;
+    if (!game.isPlayerTurn()) return;
 
     const cell = event.target.closest(".cell");
     if (!cell) return;
 
     const coordinate = [Number(cell.dataset.x), Number(cell.dataset.y)];
 
-    const { defender, result, ship } = game.attack(coordinate);
+    const { defender, result, ship, gameOver } = game.attack(coordinate);
     if (!result) return;
 
-    const boardElement = defender === game.player1 ? playerBoard : opponentBoard;
+    const boardElement = game.isHumanPlayer(defender) ? playerBoard : opponentBoard;
     DOM.renderAttack(boardElement, coordinate, result, ship);
 
-    game.switchTurn();
-
-    if (game.currentPlayer === game.player2) {
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      const { defender, coordinate, result, ship } = game.computerAttack();
-
-      if (result) {
-        const boardElement = defender === game.player1 ? playerBoard : opponentBoard;
-        DOM.renderAttack(boardElement, coordinate, result, ship);
-      }
+    if (gameOver) {
+      DOM.renderPhase("gameover", game.winner === game.player1 ? "Player 1" : "Computer");
+      return;
     }
 
     game.switchTurn();
+
+    if (game.isComputerTurn()) {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      const { defender, coordinate, result, ship, gameOver } = game.computerAttack();
+
+      if (result) {
+        const boardElement = game.isHumanPlayer(defender) ? playerBoard : opponentBoard;
+        DOM.renderAttack(boardElement, coordinate, result, ship);
+      }
+
+      if (gameOver) {
+        DOM.renderPhase("gameover", game.winner === game.player1 ? "Player 1" : "Computer");
+        return;
+      }
+
+      game.switchTurn();
+    }
   }
   opponentBoard.addEventListener("click", handleAttack);
 }

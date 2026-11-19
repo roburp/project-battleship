@@ -12,7 +12,8 @@ function createCell(x, y) {
 }
 
 // renders the ship placement tray
-export function renderShipTray(container, fleet) {
+export function renderShipTray(boardElement, fleet) {
+  boardElement.innerHTML = "";
   fleet.forEach((length) => {
     const ship = document.createElement("div");
     ship.classList.add("placeable-ship");
@@ -23,12 +24,14 @@ export function renderShipTray(container, fleet) {
       ship.append(cell);
     }
 
-    container.append(ship);
+    boardElement.append(ship);
   });
 }
 
 // renders the gameboard (ideally 10x10)
 export function renderBoard(boardElement, size) {
+  boardElement.innerHTML = "";
+
   for (let y = 1; y <= size; y++) {
     for (let x = 1; x <= size; x++) {
       const cell = createCell(x, y);
@@ -72,15 +75,29 @@ export function renderAttack(boardElement, coordinate, result, ship) {
   }
 }
 
-export function renderPhase(phase) {
+export function updateStartButton(isDeploymentComplete) {
+  const startGameButton = document.querySelector("#start-game");
+  startGameButton.disabled = !isDeploymentComplete;
+}
+
+export function renderPhase(gameState, winner = null) {
   const opponentBoard = document.querySelector("#opponent-board");
   const shipTray = document.querySelector("#ship-tray");
+  const gameOverScreen = document.querySelector("#game-over");
 
-  if (phase === "deployment") {
+  gameOverScreen.hidden = true;
+
+  if (gameState === "deployment") {
     opponentBoard.hidden = true;
     shipTray.hidden = false;
-  } else {
+  } else if (gameState === "playing") {
     opponentBoard.hidden = false;
     shipTray.hidden = true;
+  } else if (gameState === "gameover") {
+    opponentBoard.hidden = false;
+    shipTray.hidden = true;
+    gameOverScreen.hidden = false;
+
+    gameOverScreen.querySelector(".winner-message").textContent = `${winner} wins!`;
   }
 }

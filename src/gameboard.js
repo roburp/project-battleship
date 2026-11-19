@@ -16,6 +16,12 @@ export class Gameboard {
     this.ships.push({ ship, coordinates });
   }
 
+  resetBoard() {
+    this.ships = [];
+    this.attacks = [];
+    this.missedAttacks = [];
+  }
+
   receiveAttack(coordinates) {
     // Checks if coordinate has already been attacked
     const alreadyAttacked = this.attacks.some((attack) => attack[0] === coordinates[0] && attack[1] === coordinates[1]);
@@ -38,6 +44,22 @@ export class Gameboard {
         ship: null,
       };
     }
+  }
+
+  randomizeShipPlacement(fleet) {
+    fleet.forEach((length) => {
+      let coordinates;
+
+      do {
+        const x = Math.floor(Math.random() * 10) + 1;
+        const y = Math.floor(Math.random() * 10) + 1;
+        const isVertical = Math.random() < 0.5;
+
+        coordinates = Array.from({ length }, (_, i) => (isVertical ? [x, y + i] : [x + i, y]));
+      } while (!this.isValidPlacement(coordinates));
+
+      this.placeShip(length, coordinates);
+    });
   }
 
   isValidPlacement(coordinates) {

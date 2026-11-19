@@ -13,8 +13,9 @@ DOM.renderShipTray(shipTrayContainer, game.fleet);
 
 DOM.renderBoard(playerBoard, 10);
 DOM.renderBoard(opponentBoard, 10);
+DOM.updateStartButton(false);
 
-game.setupGame();
+game.resetGame();
 
 DOM.renderShips(playerBoard, game.player1.gameboard);
 DOM.renderShips(opponentBoard, game.player2.gameboard);

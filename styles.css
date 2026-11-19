@@ -42,14 +42,19 @@
   background-color: steelblue;
 }
 
-/* no need this later on */
-#opponent-board .ship {
+/* show computer ships */
+/* #opponent-board .ship {
   background-color: black;
-}
+} */
 
 #player-board .ship.hit,
 #opponent-board .ship.hit {
   background-color: red;
+}
+
+#player-board .ship.sunk,
+#opponent-board .ship.sunk {
+  background-color: rgb(138, 16, 16);
 }
 
 .cell.miss {
